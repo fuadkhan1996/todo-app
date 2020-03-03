@@ -9,9 +9,10 @@ function App() {
   return (
     <div>
       <Header/>
-      <Container className="mt-4">
+      <Container className="mt-5">
         <TodoList />
       </Container>
+      <div className="mt-4"></div>
     </div>
   );
 }

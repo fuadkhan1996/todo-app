@@ -1,13 +1,8 @@
-.header__container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 100%;
-  height: 100%;
+.navbar-color {
   background: lightgrey;
 }
 
-.header__span {
+.header-span {
   margin: 0 0.2em;
   vertical-align: super;
   font-size: 1.3em;
