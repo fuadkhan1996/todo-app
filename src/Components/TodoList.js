@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus, faTrash, faEdit } from '@fortawesome/free-solid-svg-icons';
-import { Row, Alert } from 'react-bootstrap'
+import { Row, Alert, Card } from 'react-bootstrap'
 import { v1 as uuidv1 } from 'uuid';
 
 const TodoList = () => {
@@ -20,7 +20,6 @@ const TodoList = () => {
       }])
 
       setItem('')
-      console.log(todoItems)
     }
   }
 
@@ -58,11 +57,71 @@ const TodoList = () => {
 
   }
 
+  const loadTodoItems = (todoItemsFlag) => {
+    return todoItems.map(todoItem => {
+      if(todoItem.mark === todoItemsFlag) {
+        return(
+          <Alert key={ todoItem.id } variant="dark">
+          <input
+            type="checkbox"
+            disabled={ todoItem.id === editEditItem.id }
+            checked={ todoItem.mark }
+            onChange={ () => markAsDone(todoItem.id) } />
+
+          { editEditItem.id === todoItem.id ?
+            (<input
+              className="ml-2"
+              type="text"
+              value={ editEditItem.value }
+              onChange={ (e) => setEditItem({ id: todoItem.id, value: e.target.value }) }
+              onKeyDown={(e) => updateItem(e, todoItem.id) }/>) :
+            (<label className="ml-2">{ todoItem.value }</label>) }
+
+          <Alert.Link
+            variant='light'
+            className="float-right"
+            disabled={ todoItem.id === editEditItem.id }
+            onClick={ () => setTodoItems(todoItems.filter(item => item.id !== todoItem.id))}>
+            <FontAwesomeIcon icon={ faTrash } className="text-danger"/>
+          </Alert.Link>
+
+          <Alert.Link
+            variant='light'
+            className="float-right mr-2"
+            disabled={ todoItem.id === editEditItem.id }
+            onClick={ () => setEditItem({ id: todoItem.id, value: todoItem.value }) }>
+            <FontAwesomeIcon icon={ faEdit } className="text-info"/>
+          </Alert.Link>
+        </Alert>
+        )
+      }
+      else {
+        return null;
+      }
+    })
+  }
+
   return (
     <Row className="justify-content-center">
       <div className="w-50">
+        <Card className={`mt-4 ${ !todoItems.some((item, index, array) => item.mark) && 'd-none' }`}>
+          <Card.Header>Completed: </Card.Header>
+
+          <Card.Body>
+            {loadTodoItems(true)}
+          </Card.Body>
+        </Card>
+
+        <Card className={`mt-4 ${ !todoItems.some((item, index, array) => !item.mark) && 'd-none' }`}>
+          <Card.Header>InComplete: </Card.Header>
+
+          <Card.Body>
+            {loadTodoItems(false)}
+          </Card.Body>
+        </Card>
+
         <form onSubmit = { submitForm }>
-          <div className="form-row">
+          <div className="form-row mt-4">
             <div className="col">
               <input
                 type="text"
@@ -87,42 +146,6 @@ const TodoList = () => {
             </div>
           </div>
         </form>
-
-        <div className="mt-4">
-          {todoItems.map(todoItem =>
-            <Alert key={ todoItem.id } variant="dark">
-              <input
-                type="checkbox"
-                disabled={ todoItem.id === editEditItem.id }
-                checked={ todoItem.mark }
-                onChange={ () => markAsDone(todoItem.id) } />
-
-              { editEditItem.id === todoItem.id ?
-                (<input
-                  type="text"
-                  value={ editEditItem.value }
-                  onChange={ (e) => setEditItem({ id: todoItem.id, value: e.target.value }) }
-                  onKeyDown={(e) => updateItem(e, todoItem.id) }/>) :
-                (<label className="ml-2">{ todoItem.value }</label>) }
-
-              <Alert.Link
-                variant='light'
-                className="float-right"
-                disabled={ todoItem.id === editEditItem.id }
-                onClick={ () => setTodoItems(todoItems.filter(item => item.id !== todoItem.id))}>
-                <FontAwesomeIcon icon={ faTrash } className="text-danger"/>
-              </Alert.Link>
-
-              <Alert.Link
-                variant='light'
-                className="float-right mr-2"
-                disabled={ todoItem.id === editEditItem.id }
-                onClick={ () => setEditItem({ id: todoItem.id, value: todoItem.value }) }>
-                <FontAwesomeIcon icon={ faEdit } className="text-info"/>
-              </Alert.Link>
-            </Alert>
-          )}
-        </div>
       </div>
     </Row>
   )
