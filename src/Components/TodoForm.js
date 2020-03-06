@@ -1,5 +1,4 @@
 import React, { useState } from 'react'
-import { v1 as uuidv1 } from 'uuid';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus } from '@fortawesome/free-solid-svg-icons';
 import TodoList from './TodoList';

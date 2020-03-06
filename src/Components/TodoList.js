@@ -12,10 +12,27 @@ class TodoList extends Component {
     }
   }
 
+  saveStateToLocalStorage = () => {
+    localStorage.setItem('todoItems', JSON.stringify(this.state.todoItems))
+  }
+
+  componentDidMount() {
+    const items = localStorage.getItem('todoItems')
+    if(items) {
+      this.setState({todoItems: JSON.parse(items)})
+    }
+    window.addEventListener("beforeunload", this.saveStateToLocalStorage)
+  }
+
   componentDidUpdate(prevProps) {
     if(this.props.todoItem !== prevProps.todoItem) {
       this.addTodoItem(this.props.todoItem)
     }
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener("beforeunload", this.saveStateToLocalStorage);
+    this.saveStateToLocalStorage();
   }
 
   addTodoItem = (item) => {
