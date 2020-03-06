@@ -12,7 +12,6 @@ function TodoForm() {
   const addTodo = e => {
     e.preventDefault();
     item === todoItem ? setErrorMessage('Already Exists!') : setTodoItem(item)
-    setItem('')
   }
 
   return (
@@ -20,6 +19,7 @@ function TodoForm() {
       <div className="w-50">
       <TodoList
         todoItem={ todoItem }
+        setItem={ setItem }
         setErrorMessage={ setErrorMessage }/>
 
       <form onSubmit = { addTodo }>

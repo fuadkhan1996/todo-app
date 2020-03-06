@@ -26,6 +26,7 @@ class TodoList extends Component {
         completed: false
       }]});
       this.props.setErrorMessage('')
+      this.props.setItem('')
     }
     else {
       item === '' ? this.props.setErrorMessage('Field is required!') : this.props.setErrorMessage('"Already Exists!')
