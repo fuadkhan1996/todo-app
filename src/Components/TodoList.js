@@ -1,154 +1,116 @@
-import React, { useState } from 'react'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPlus, faTrash, faEdit } from '@fortawesome/free-solid-svg-icons';
-import { Row, Alert, Card } from 'react-bootstrap'
+import React, { Component } from 'react'
 import { v1 as uuidv1 } from 'uuid';
+import LoadTodoItems from './LoadTodoItems';
 
-const TodoList = () => {
-  const [item, setItem] = useState('')
-  const [todoItems, setTodoItems] = useState([])
-  const [editEditItem, setEditItem] = useState({ id: -1, value: '' })
+class TodoList extends Component {
+  constructor(props) {
+    super(props)
 
-  const submitForm = e => {
-    e.preventDefault();
-
-    if (item !== '' && !todoItems.some(todoItem => todoItem.value === item)) {
-      setTodoItems([...todoItems, {
-        id: uuidv1(),
-        value: item,
-        mark: false
-      }])
-
-      setItem('')
+    this.state = {
+      todoItems: [],
+      editItem: { id: -1, value: ''}
     }
   }
 
-  const markAsDone = (id) => {
-    let items = todoItems.map(item => {
+  componentDidUpdate(prevProps) {
+    if(this.props.todoItem !== prevProps.todoItem) {
+      this.addTodoItem(this.props.todoItem)
+    }
+  }
+
+  addTodoItem = (item) => {
+    if (item !== '' && !this.state.todoItems.some(todoItem => todoItem.value === item)) {
+      this.setState({ todoItems: [...this.state.todoItems, {
+        id: uuidv1(),
+        value: item,
+        completed: false
+      }]});
+      this.props.setErrorMessage('')
+      this.props.setItem('')
+    }
+    else {
+      item === '' ? this.props.setErrorMessage('Field is required!') : this.props.setErrorMessage('"Already Exists!')
+    }
+  }
+
+  markAsDone = id => {
+    const items = this.state.todoItems.map(item => {
       if(item.id === id) {
-        item.mark = !item.mark
+        item.completed = !item.completed
         return item;
       }
       else {
         return item;
       }
     })
-    setTodoItems(items)
+    this.setState({ items })
   }
 
-  const updateItem = (e, id) => {
+  resetEditItemState = () => {
+    this.setState({ editItem: {id: -1, value: ''} })
+  }
+
+  updateItem = (e, id) => {
     if(e.keyCode === 27) {
-      setEditItem({id: -1, value: ''})
+      this.resetEditItemState()
     }
-    if(e.keyCode === 13)
+    else if(e.keyCode === 13)
     {
-      let items = todoItems.map(item => {
-        if(item.id === id && editEditItem.value !== '') {
-          item.value = editEditItem.value
+      let items = this.state.todoItems.map(item => {
+        if(item.id === id && this.state.editItem.value !== '') {
+          item.value = this.state.editItem.value
           return item;
         }
         else {
           return item;
         }
       });
-      setTodoItems(items)
-      setEditItem({id: -1, value: ''})
+      this.setState({ items })
+      this.resetEditItemState()
     }
-
   }
 
-  const loadTodoItems = (todoItemsFlag) => {
-    return todoItems.map(todoItem => {
-      if(todoItem.mark === todoItemsFlag) {
-        return(
-          <Alert key={ todoItem.id } variant="dark">
-          <input
-            type="checkbox"
-            disabled={ todoItem.id === editEditItem.id }
-            checked={ todoItem.mark }
-            onChange={ () => markAsDone(todoItem.id) } />
-
-          { editEditItem.id === todoItem.id ?
-            (<input
-              className="ml-2"
-              type="text"
-              value={ editEditItem.value }
-              onChange={ (e) => setEditItem({ id: todoItem.id, value: e.target.value }) }
-              onKeyDown={(e) => updateItem(e, todoItem.id) }/>) :
-            (<label className="ml-2">{ todoItem.value }</label>) }
-
-          <Alert.Link
-            variant='light'
-            className="float-right"
-            disabled={ todoItem.id === editEditItem.id }
-            onClick={ () => setTodoItems(todoItems.filter(item => item.id !== todoItem.id))}>
-            <FontAwesomeIcon icon={ faTrash } className="text-danger"/>
-          </Alert.Link>
-
-          <Alert.Link
-            variant='light'
-            className="float-right mr-2"
-            disabled={ todoItem.id === editEditItem.id }
-            onClick={ () => setEditItem({ id: todoItem.id, value: todoItem.value }) }>
-            <FontAwesomeIcon icon={ faEdit } className="text-info"/>
-          </Alert.Link>
-        </Alert>
-        )
-      }
-      else {
-        return null;
-      }
-    })
+  editTextOnChange = (e, todoItemId) => {
+    this.setState({editItem: {id: todoItemId, value: e.target.value}})
   }
 
-  return (
-    <Row className="justify-content-center">
-      <div className="w-50">
-        <Card className={`mt-4 ${ !todoItems.some((item, index, array) => item.mark) && 'd-none' }`}>
-          <Card.Header>Completed: </Card.Header>
+  setEditItemText = (todoItem) => {
+    this.setState({ editItem: { id: todoItem.id, value: todoItem.value } })
+  }
 
-          <Card.Body>
-            {loadTodoItems(true)}
-          </Card.Body>
-        </Card>
+  filterTodoItems = (filteredItemId) => {
+    this.setState({ todoItems: this.state.todoItems.filter(item => item.id !== filteredItemId) })
+  }
 
-        <Card className={`mt-4 ${ !todoItems.some((item, index, array) => !item.mark) && 'd-none' }`}>
-          <Card.Header>InComplete: </Card.Header>
+  render() {
+    const {todoItems, editItem} = this.state
+    const completedTasks = todoItems.filter(item => item.completed === true)
+    const inCompletedTasks = todoItems.filter(item => item.completed === false)
 
-          <Card.Body>
-            {loadTodoItems(false)}
-          </Card.Body>
-        </Card>
+    return(
+      <div>
+        <LoadTodoItems
+          todoItems={ completedTasks }
+          editItem={ editItem }
+          type="Complete"
+          markAsDone={ this.markAsDone }
+          editTextOnChange={ this.editTextOnChange }
+          updateItem={ this.updateItem }
+          filterTodoItems={ this.filterTodoItems }
+          setEditItemText={ this.setEditItemText }/>
 
-        <form onSubmit = { submitForm }>
-          <div className="form-row mt-4">
-            <div className="col">
-              <input
-                type="text"
-                value={ item }
-                className="form-control"
-                id="new-todo-item"
-                name="new-todo-item"
-                placeholder="I want to do..."
-                aria-label="Todo item description"
-                autoFocus
-                onChange = { (e) => setItem(e.target.value) }
-              />
-            </div>
-
-            <div className="col-auto">
-              <button
-                type="submit"
-                className="btn btn-primary"
-                aria-label="Add todo item">
-                <FontAwesomeIcon icon={ faPlus } />
-              </button>
-            </div>
-          </div>
-        </form>
+        <LoadTodoItems
+          todoItems={ inCompletedTasks }
+          editItem={ editItem }
+          type="InComplete"
+          markAsDone={ this.markAsDone }
+          editTextOnChange={ this.editTextOnChange }
+          updateItem={ this.updateItem }
+          filterTodoItems={ this.filterTodoItems }
+          setEditItemText={ this.setEditItemText }/>
       </div>
-    </Row>
-  )
+    )
+  }
 }
 
 export default TodoList
