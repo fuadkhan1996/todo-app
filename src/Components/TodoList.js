@@ -4,7 +4,6 @@ import LoadTodoItems from './LoadTodoItems';
 import withPresistedState from './withPresistedState'
 
 class TodoList extends Component {
-
   constructor(props) {
     super(props)
 
@@ -52,9 +51,11 @@ class TodoList extends Component {
     }
     else if(e.keyCode === 13)
     {
-      this.setState(prevState => ({
-        todoItems : prevState.todoItems.map(item => item.id === id ? { ...item, value: this.state.editItem.value } : item)
-      }));
+      if(this.state.editItem.value !== '') {
+        this.setState(prevState => ({
+          todoItems : prevState.todoItems.map(item => item.id === id ? { ...item, value: this.state.editItem.value } : item)
+        }));
+      }
       this.resetEditItemState()
     }
   }

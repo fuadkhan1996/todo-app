@@ -1,15 +1,15 @@
 import { useState, useEffect } from 'react'
 
-function usePresistedState(Key, defaultValue) {
-  const [state, setState] = useState(JSON.parse(localStorage.getItem(Key)) || defaultValue)
+function usePresistedState(key, defaultValue) {
+  const [state, setState] = useState(JSON.parse(localStorage.getItem(key)) || defaultValue)
 
   useEffect(() => {
-    localStorage.setItem(Key, JSON.stringify(state))
+    localStorage.setItem(key, JSON.stringify(state))
 
     return () => {
-      localStorage.setItem(Key, JSON.stringify(state))
+      localStorage.setItem(key, JSON.stringify(state))
     }
-  }, [Key, state])
+  }, [key, state])
 
   return [state, setState]
 }
