@@ -10,7 +10,7 @@ function TodoForm() {
 
   const addTodo = e => {
     e.preventDefault();
-    item === todoItem ? setErrorMessage('Already Exists!') : setTodoItem(item)
+    item === '' ? setErrorMessage('Field is required!') : setTodoItem(item)
   }
 
   return (
@@ -19,7 +19,9 @@ function TodoForm() {
       <TodoList
         todoItem={ todoItem }
         setItem={ setItem }
-        setErrorMessage={ setErrorMessage }/>
+        setErrorMessage={ setErrorMessage }
+        storageKey="todoItems"
+        defaultStorageValue={[]}/>
 
       <form onSubmit = { addTodo }>
         <div className="form-row mt-4">
