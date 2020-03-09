@@ -1,13 +1,14 @@
 import React, { Component } from 'react'
 import { v1 as uuidv1 } from 'uuid';
 import LoadTodoItems from './LoadTodoItems';
+import withPresistedState from './withPresistedState'
 
 class TodoList extends Component {
   constructor(props) {
     super(props)
 
     this.state = {
-      todoItems: [],
+      todoItems: this.props.storageData,
       editItem: { id: -1, value: ''}
     }
   }
@@ -16,6 +17,7 @@ class TodoList extends Component {
     if(this.props.todoItem !== prevProps.todoItem) {
       this.addTodoItem(this.props.todoItem)
     }
+    this.props.setStorageData(this.state.todoItems)
   }
 
   addTodoItem = (item) => {
@@ -29,21 +31,14 @@ class TodoList extends Component {
       this.props.setItem('')
     }
     else {
-      item === '' ? this.props.setErrorMessage('Field is required!') : this.props.setErrorMessage('"Already Exists!')
+      item === '' ? this.props.setErrorMessage('Field is required!') : this.props.setErrorMessage('Already Exists!')
     }
   }
 
   markAsDone = id => {
-    const items = this.state.todoItems.map(item => {
-      if(item.id === id) {
-        item.completed = !item.completed
-        return item;
-      }
-      else {
-        return item;
-      }
-    })
-    this.setState({ items })
+    this.setState(prevState => ({
+      todoItems : prevState.todoItems.map(item => item.id === id ? { ...item, completed: !item.completed } : item)
+    }));
   }
 
   resetEditItemState = () => {
@@ -56,16 +51,11 @@ class TodoList extends Component {
     }
     else if(e.keyCode === 13)
     {
-      let items = this.state.todoItems.map(item => {
-        if(item.id === id && this.state.editItem.value !== '') {
-          item.value = this.state.editItem.value
-          return item;
-        }
-        else {
-          return item;
-        }
-      });
-      this.setState({ items })
+      if(this.state.editItem.value !== '') {
+        this.setState(prevState => ({
+          todoItems : prevState.todoItems.map(item => item.id === id ? { ...item, value: this.state.editItem.value } : item)
+        }));
+      }
       this.resetEditItemState()
     }
   }
@@ -113,4 +103,4 @@ class TodoList extends Component {
   }
 }
 
-export default TodoList
+export default withPresistedState(TodoList)
